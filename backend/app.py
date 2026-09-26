@@ -211,7 +211,7 @@ def serialize_order(order):
 
 @app.get("/")
 def index():
-    return jsonify({"message": "Welcome to the E-Commerce API"})
+    return ({"message": "Welcome to the E-Commerce API"})
 
 @app.get("/api/products")
 

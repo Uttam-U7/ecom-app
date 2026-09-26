@@ -30,7 +30,7 @@ razorpay_client = razorpay.Client(auth=(razorpay_key_id, razorpay_secret))
 database_url = os.getenv("DATABASE_URL")
 if not database_url:
     raise RuntimeError("DATABASE_URL must be set to a PostgreSQL connection URL")
-if not database_url.startswith(("postgresql://", "postgresql+psycopg2://")):
+if not database_url.startswith(("postgresql://", "postgresql+psycopg2://", "postgresql+psycopg://")):
     raise RuntimeError("DATABASE_URL must use PostgreSQL")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url

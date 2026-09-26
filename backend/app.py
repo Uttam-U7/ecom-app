@@ -18,7 +18,7 @@ app.config.update(
     JSON_SORT_KEYS=False,
 )
 
-cors_origins = [origin.strip() for origin in os.getenv("CORS_ORIGINS", "https://ecom-app-integrate.vercel.app/").split(",") if origin.strip()]
+cors_origins = [origin.strip() for origin in os.getenv("CORS_ORIGINS", "https://ecom-app-fawn.vercel.app/").split(",") if origin.strip()]
 CORS(app, resources={r"/api/*": {"origins": cors_origins}})
 
 razorpay_key_id = os.getenv("RAZORPAY_TEST_KEY_ID")

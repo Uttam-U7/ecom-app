@@ -72,7 +72,6 @@ with app.app_context():
 PRODUCTS = [
     {
         "id": 1,
-        "img" : "https://unsplash.com/photos/tree-before-building-with-dark-louvers-5dJgpTBw--w",
         "sku": "KG-DR01",
         "name": "Kalita Wave Dripper",
         "category": "dripper",
@@ -82,7 +81,6 @@ PRODUCTS = [
     },
     {
         "id": 2,
-        "img" : "https://unsplash.com/photos/tree-before-building-with-dark-louvers-5dJgpTBw--w",
         "sku": "KG-GR02",
         "name": "Comandante C40 Grinder",
         "category": "grinder",
@@ -92,7 +90,6 @@ PRODUCTS = [
     },
     {
         "id": 3,
-        "img" : "https://unsplash.com/photos/tree-before-building-with-dark-louvers-5dJgpTBw--w",
         "sku": "KG-KT03",
         "name": "Fellow Stagg EKG Kettle",
         "category": "kettle",
@@ -102,7 +99,6 @@ PRODUCTS = [
     },
     {
         "id": 4,
-        "img" : "https://www.nintendo.com/au/news-and-articles/get-to-know-link-and-his-many-adventures/?srsltid=AfmBOori9ske8vaFf8J09xFJ9aYDs8M4-6gOgRKZCxiBVJzUSuL1wkly",
         "sku": "KG-SC04",
         "name": "Acaia Pearl Scale",
         "category": "scale",
@@ -112,7 +108,6 @@ PRODUCTS = [
     },
     {
         "id": 5,
-        "img" : "https://www.nintendo.com/au/news-and-articles/get-to-know-link-and-his-many-adventures/?srsltid=AfmBOori9ske8vaFf8J09xFJ9aYDs8M4-6gOgRKZCxiBVJzUSuL1wkly",
         "sku": "KG-CF05",
         "name": "Chemex Six-Cup Carafe",
         "category": "carafe",
@@ -122,7 +117,6 @@ PRODUCTS = [
     },
     {
         "id": 6,
-        "img" : "https://www.nintendo.com/au/news-and-articles/get-to-know-link-and-his-many-adventures/?srsltid=AfmBOori9ske8vaFf8J09xFJ9aYDs8M4-6gOgRKZCxiBVJzUSuL1wkly",
         "sku": "KG-FL06",
         "name": "Hario V60 Filters (100 ct)",
         "category": "filters",
@@ -154,7 +148,6 @@ def serialize_cart():
         subtotal = product["price"] * quantity
         total += subtotal
         items.append({
-            "img":product["img"],
             "product_id": product["id"],
             "sku": product["sku"],
             "name": product["name"],

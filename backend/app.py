@@ -1,9 +1,9 @@
 
-from flask import Flask, jsonify, request
-from flask_cors import CORS
-import razorpay
+from flask import Flask, jsonify, request  # type: ignore[reportMissingImports]
+from flask_cors import CORS  # type: ignore[reportMissingImports]
+import razorpay  # type: ignore[reportMissingImports]  
 from database.data import db
-from dotenv import load_dotenv
+from dotenv import load_dotenv # type: ignore[reportMissingImports] 
 from models.cart import CartItem, Product
 from models.order import Order, OrderItem, PaymentDetails
 import os
@@ -149,15 +149,7 @@ def index():
 
 def list_products():
     products = Product.query.all()
-    return jsonify([{
-        "id": product.id,
-        "sku": product.sku,
-        "name": product.name,
-        "category": product.category,
-        "price": product.price,
-        "description": product.description,
-        "specs": product.specs
-    } for product in products])
+    return jsonify(products)
 
 
 @app.get("/api/products/<int:product_id>")

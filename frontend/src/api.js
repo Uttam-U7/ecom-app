@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:5000/api";
+const BASE = import.meta.env.VITE_API_BASE_URL || "https://ecom-app-inky.vercel.app/api";
 
 async function request(path, options = {}) {
   const res = await fetch(`${BASE}${path}`, {

@@ -16,3 +16,37 @@ class CartItem(db.Model):
         onupdate=datetime.utcnow,
         nullable=False,
     )
+
+class Product(db.Model):
+    __tablename__ = "products"
+
+    id = db.Column(db.Integer, primary_key=True)
+    sku = db.Column(
+        db.String(50),
+        nullable=False,
+        unique=True
+    )
+    name = db.Column(
+        db.String(200),
+        nullable=False
+    )
+    category = db.Column(
+        db.String(50),
+        nullable=False
+    )
+    price = db.Column(
+        db.Float,
+        nullable=False
+    )
+    description = db.Column(
+        db.String(500),
+        nullable=True
+    )
+    specs = db.Column(
+        db.String(500),
+        nullable=True
+    )
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )

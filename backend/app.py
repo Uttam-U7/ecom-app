@@ -4,7 +4,7 @@ from flask_cors import CORS
 import razorpay
 from database.data import db
 from dotenv import load_dotenv
-from models.cart import CartItem
+from models.cart import CartItem, Product
 from models.order import Order, OrderItem, PaymentDetails
 import os
 import hmac

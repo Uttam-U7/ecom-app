@@ -65,13 +65,77 @@ def require_admin_token():
 
 with app.app_context():
     db.create_all()
+    if not Product.query.first():
+        db.session.add_all([
+            Product(
+                sku="BREW-DRIP-01",
+                name="Ceramic Pour-Over Dripper",
+                category="dripper",
+                price=1499,
+                description="A ribbed ceramic dripper for a steady, controlled pour.",
+                specs={"Material": "Glazed ceramic", "Brewer": "1-2 cups"},
+            ),
+            Product(
+                sku="BREW-GRIND-02",
+                name="Precision Hand Grinder",
+                category="grinder",
+                price=8499,
+                description="A compact hand grinder with consistent, adjustable burrs.",
+                specs={"Burrs": "Stainless steel", "Adjustment": "40 settings"},
+            ),
+            Product(
+                sku="BREW-KETTLE-03",
+                name="Gooseneck Pouring Kettle",
+                category="kettle",
+                price=6999,
+                description="A balanced gooseneck kettle for precise pour control.",
+                specs={"Capacity": "900 ml", "Material": "Stainless steel"},
+            ),
+            Product(
+                sku="BREW-SCALE-04",
+                name="Digital Brew Scale",
+                category="scale",
+                price=3299,
+                description="A responsive scale for repeatable coffee-to-water ratios.",
+                specs={"Accuracy": "0.1 g", "Timer": "Built in"},
+            ),
+            Product(
+                sku="BREW-CARAFE-05",
+                name="Glass Server Carafe",
+                category="carafe",
+                price=1899,
+                description="A heat-resistant glass server sized for a shared brew.",
+                specs={"Capacity": "600 ml", "Material": "Borosilicate glass"},
+            ),
+            Product(
+                sku="BREW-FILTER-06",
+                name="Paper Filter Set",
+                category="filters",
+                price=499,
+                description="Unbleached cone filters designed for a clean cup.",
+                specs={"Count": "100 filters", "Size": "02 cone"},
+            ),
+        ])
+        db.session.commit()
+
+
+def serialize_product(product):
+    return {
+        "id": product.id,
+        "sku": product.sku,
+        "name": product.name,
+        "category": product.category,
+        "price": product.price,
+        "description": product.description,
+        "specs": product.specs or {},
+    }
 
 
 def get_product_or_404(product_id):
     product = db.session.query(Product).filter_by(id=product_id).first()
     if product is None:
         return None
-    return product
+    return serialize_product(product)
 
 
 def serialize_cart():
@@ -146,10 +210,9 @@ def index():
     return ({"message": "Welcome to the E-Commerce API"})
 
 @app.get("/api/products")
-
 def list_products():
     products = Product.query.all()
-    return jsonify(products)
+    return jsonify([serialize_product(product) for product in products])
 
 
 @app.get("/api/products/<int:product_id>")

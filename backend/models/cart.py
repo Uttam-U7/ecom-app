@@ -43,7 +43,7 @@ class Product(db.Model):
         nullable=True
     )
     specs = db.Column(
-        db.String(500),
+        db.JSON,
         nullable=True
     )
     created_at = db.Column(

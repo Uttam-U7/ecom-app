@@ -66,70 +66,9 @@ def require_admin_token():
 with app.app_context():
     db.create_all()
 
-# ---------------------------------------------------------------------------
-# Data — the catalog is static for this demo; cart and orders are persisted.
-# ---------------------------------------------------------------------------
-PRODUCTS = [
-    {
-        "id": 1,
-        "sku": "KG-DR01",
-        "name": "Kalita Wave Dripper",
-        "category": "dripper",
-        "price": 2499,
-        "description": "Flat-bottom pour-over dripper for even, repeatable extraction.",
-        "specs": {"Material": "Ceramic", "Origin": "Japan", "Weight": "320 g"},
-    },
-    {
-        "id": 2,
-        "sku": "KG-GR02",
-        "name": "Comandante C40 Grinder",
-        "category": "grinder",
-        "price": 10999,
-        "description": "Hand grinder with hardened-steel conical burrs.",
-        "specs": {"Material": "Stainless steel", "Origin": "Germany", "Weight": "460 g"},
-    },
-    {
-        "id": 3,
-        "sku": "KG-KT03",
-        "name": "Fellow Stagg EKG Kettle",
-        "category": "kettle",
-        "price": 8999,
-        "description": "Variable-temperature gooseneck kettle with LCD display.",
-        "specs": {"Material": "Stainless steel", "Origin": "USA", "Weight": "1.1 kg"},
-    },
-    {
-        "id": 4,
-        "sku": "KG-SC04",
-        "name": "Acaia Pearl Scale",
-        "category": "scale",
-        "price": 12499,
-        "description": "0.1 g precision scale with a built-in brew timer.",
-        "specs": {"Material": "Aluminium", "Origin": "Taiwan", "Weight": "370 g"},
-    },
-    {
-        "id": 5,
-        "sku": "KG-CF05",
-        "name": "Chemex Six-Cup Carafe",
-        "category": "carafe",
-        "price": 4299,
-        "description": "Iconic hourglass carafe for a clean, bright cup.",
-        "specs": {"Material": "Borosilicate glass", "Origin": "USA", "Weight": "482 g"},
-    },
-    {
-        "id": 6,
-        "sku": "KG-FL06",
-        "name": "Hario V60 Filters (100 ct)",
-        "category": "filters",
-        "price": 449,
-        "description": "Tabbed paper filters sized for the V60-02 dripper.",
-        "specs": {"Material": "Paper", "Origin": "Japan", "Weight": "180 g"},
-    },
-]
-
-PRODUCTS_BY_ID = {p["id"]: p for p in PRODUCTS}
 
 def get_product_or_404(product_id):
-    product = PRODUCTS_BY_ID.get(product_id)
+    product = db.session.query(Product).filter_by(id=product_id).first()
     if product is None:
         return None
     return product
@@ -142,7 +81,7 @@ def serialize_cart():
     for cart_item in CartItem.query.order_by(CartItem.product_id).all():
         product_id = cart_item.product_id
         quantity = cart_item.quantity
-        product = PRODUCTS_BY_ID.get(product_id)
+        product = get_product_or_404(product_id)
         if not product or quantity <= 0:
             continue
         subtotal = product["price"] * quantity
@@ -209,7 +148,16 @@ def index():
 @app.get("/api/products")
 
 def list_products():
-    return jsonify(PRODUCTS)
+    products = Product.query.all()
+    return jsonify([{
+        "id": product.id,
+        "sku": product.sku,
+        "name": product.name,
+        "category": product.category,
+        "price": product.price,
+        "description": product.description,
+        "specs": product.specs
+    } for product in products])
 
 
 @app.get("/api/products/<int:product_id>")

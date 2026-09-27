@@ -9,8 +9,7 @@ export default function Home() {
 
   const all_products = async () => {
     try{
-      const data = await fetch('api/products')
-      const products = await data.json()
+      const products = await api.getProducts();
       setProducts(products)
     } catch (err) {
       setError("Couldn't load the catalog. Is the backend running?");

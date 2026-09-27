@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { API_BASE } from "../api.js";
 
 const CartContext = createContext(null);
-const BASE = import.meta.env.VITE_API_BASE_URL || "/api";
 
 // Shared helper so every call handles non-2xx responses the same way.
 // (fetch only rejects on network failure, not on a 4xx/5xx status, so
@@ -28,7 +28,7 @@ export function CartProvider({ children }) {
 
   const refresh = async () => {
     try {
-      const res = await fetch(`${BASE}/cart`);
+      const res = await fetch(`${API_BASE}/cart`);
       const cart = await handleResponse(res);
       applyCart(cart);
     } finally {
@@ -41,7 +41,7 @@ export function CartProvider({ children }) {
   }, []);
 
   const addItem = async (productId, quantity = 1) => {
-    const res = await fetch(`${BASE}/cart/add`, {
+    const res = await fetch(`${API_BASE}/cart/add`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ product_id: productId, quantity }),
@@ -51,7 +51,7 @@ export function CartProvider({ children }) {
   };
 
   const createRazorpayOrder = async (productId, quantity = 1) => {
-    const res = await fetch(`${BASE}/create-order`, {
+    const res = await fetch(`${API_BASE}/create-order`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ product_id: productId, quantity }),
@@ -60,7 +60,7 @@ export function CartProvider({ children }) {
   };
 
   const verifyPayment = async (payment) => {
-    const res = await fetch(`${BASE}/verify`, {
+    const res = await fetch(`${API_BASE}/verify`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams(payment),
@@ -69,7 +69,7 @@ export function CartProvider({ children }) {
   };
 
   const updateItem = async (productId, quantity) => {
-    const res = await fetch(`${BASE}/cart/update`, {
+    const res = await fetch(`${API_BASE}/cart/update`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ product_id: productId, quantity }),
@@ -79,13 +79,13 @@ export function CartProvider({ children }) {
   };
 
   const removeItem = async (productId) => {
-    const res = await fetch(`${BASE}/cart/${productId}`, { method: "DELETE" });
+    const res = await fetch(`${API_BASE}/cart/${productId}`, { method: "DELETE" });
     const cart = await handleResponse(res);
     applyCart(cart);
   };
 
   const payNow = async () => {
-    const orderRes = await fetch(`${BASE}/create-cart-order`, {
+    const orderRes = await fetch(`${API_BASE}/create-cart-order`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
     });

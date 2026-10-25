@@ -85,6 +85,8 @@ export function CartProvider({ children }) {
   };
 
   const payNow = async () => {
+    const checkoutItems = items.map((item) => ({ ...item }));
+    const checkoutTotal = total;
     const orderRes = await fetch(`${BASE}/create-cart-order`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -114,7 +116,11 @@ export function CartProvider({ children }) {
             if (settled) return;
             settled = true;
             applyCart({ items: [], total: 0, count: 0 });
-            resolve(verification);
+            resolve({
+              ...verification,
+              items: checkoutItems,
+              total: checkoutTotal,
+            });
           } catch (error) {
             fail(error);
           }

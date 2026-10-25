@@ -450,14 +450,11 @@ def verify_signature():
     order = Order.query.filter_by(razorpay_order_id=order_id).first()
     if not order:
         return jsonify({"error": "Order not found"}), 404
-    order.status = "PAID"
-    if not PaymentDetails.query.filter_by(payment_id=payment_id).first():
-        db.session.add(PaymentDetails(order_id=order.id, payment_id=payment_id, status="Success"))
-    db.session.commit()
 
     return jsonify({
-        "message": "Payment verification successful",
+        "message": "Payment signature verified",
         "order_id": order_id,
+        "status": order.status,
     }), 200
 
 
@@ -522,11 +519,12 @@ def razorpay_webhook():
         payment_entity = data.get("payload", {}).get("payment", {}).get("entity", {})
         razorpay_order_id = payment_entity.get("order_id")
         payment_id = payment_entity.get("id")
-        if not razorpay_order_id or not payment_id:
+        payment_amount = payment_entity.get("amount")
+        payment_currency = payment_entity.get("currency")
+        if not razorpay_order_id or not payment_id or payment_amount is None or not payment_currency:
             return jsonify({"error": "Incomplete payment payload"}), 400
 
         with db.session.begin():
-
             order = (
                 db.session.query(Order)
                 .filter_by(razorpay_order_id=razorpay_order_id)
@@ -534,10 +532,23 @@ def razorpay_webhook():
                 .first()
             )
             if not order:
-                return jsonify({"error": "order not found"}), 404
+                app.logger.warning("Captured payment references unknown order %s", razorpay_order_id)
+                return jsonify({"error": "Order not found"}), 404
+
+            if payment_currency != "INR" or payment_amount != round(order.amount * 100):
+                app.logger.error(
+                    "Captured payment amount or currency does not match order %s",
+                    razorpay_order_id,
+                )
+                return jsonify({"error": "Payment does not match order"}), 400
+
+            payment_details = PaymentDetails.query.filter_by(payment_id=payment_id).first()
+            if payment_details and payment_details.order_id != order.id:
+                app.logger.error("Payment %s is already associated with another order", payment_id)
+                return jsonify({"error": "Payment is already associated with another order"}), 409
 
             order.status = "PAID"
-            if not PaymentDetails.query.filter_by(payment_id=payment_id).first():
+            if not payment_details:
                 db.session.add(PaymentDetails(
                     order_id=order.id,
                     payment_id=payment_id,

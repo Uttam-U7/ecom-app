@@ -42,7 +42,7 @@ export default function ProductCard({ product }) {
           try {
             const verification = await verifyPayment(response);
             setOrderState("confirmed");
-            setOrderId(verification.order_id);
+            setOrderId(verification);
           } catch (error) {
             setOrderError(error.message || "Payment verification failed");
             setOrderState("error");
@@ -106,7 +106,11 @@ export default function ProductCard({ product }) {
         </div>
 
         {orderState === "confirmed" && (
-          <p className="order-confirm">Payment done successfully. Order #{orderId} placed.</p>
+          <p className="order-confirm">
+            {orderId?.status === "PAID"
+              ? `Payment captured successfully. Order #${orderId.order_id} placed.`
+              : `Payment signature verified. Order #${orderId?.order_id} is awaiting capture confirmation.`}
+          </p>
         )}
         {orderState === "error" && (
           <p className="order-error">{orderError || "Couldn't place that order. Try again."}</p>

@@ -24,14 +24,18 @@ export default function Cart() {
   };
 
   if (confirmation) {
+    const isPaid = confirmation.status === "PAID";
     return (
       <main className="page">
         <section className="receipt confirmation">
-          <span className="eyebrow">order confirmed</span>
+          <span className="eyebrow">{isPaid ? "order confirmed" : "payment submitted"}</span>
           <h2>Order #{confirmation.order_id}</h2>
           <p className="hero-sub">
             {confirmation.items.length} item{confirmation.items.length > 1 ? "s" : ""}{" "}
-            &middot; {formatPrice(confirmation.total)} charged. Brewing excellence awaits.
+            &middot; {formatPrice(confirmation.total)}.{" "}
+            {isPaid
+              ? "Payment captured successfully. Brewing excellence awaits."
+              : "Payment signature verified. We are waiting for capture confirmation."}
           </p>
           <Link to="/" className="btn btn-solid">Continue Shopping</Link>
         </section>

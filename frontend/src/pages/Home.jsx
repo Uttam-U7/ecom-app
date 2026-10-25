@@ -7,18 +7,19 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-   const all_products = async() => {
-    const res = await fetch("/api/products")
-    if(!res.ok) throw new Error('Error in loading products').catch(()=>({}))
-    return res.json()
-   }
+  const all_products = async () => {
+    try{
+      const products = await api.getProducts();
+      setProducts(products)
+    } catch (err) {
+      setError("Couldn't load the catalog. Is the backend running?");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    api
-      .getProducts()
-      .then(setProducts)
-      .catch(() => setError("Couldn't load the catalog. Is the backend running?"))
-      .finally(() => setLoading(false));
+    all_products();
   }, []);
 
   return (

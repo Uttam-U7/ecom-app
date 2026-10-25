@@ -1,10 +1,10 @@
 
-from flask import Flask, jsonify, request
-from flask_cors import CORS
-import razorpay
+from flask import Flask, jsonify, request  # type: ignore[reportMissingImports]
+from flask_cors import CORS  # type: ignore[reportMissingImports]
+import razorpay  # type: ignore[reportMissingImports]  
 from database.data import db
-from dotenv import load_dotenv
-from models.cart import CartItem
+from dotenv import load_dotenv # type: ignore[reportMissingImports] 
+from models.cart import CartItem, Product
 from models.order import Order, OrderItem, PaymentDetails
 import os
 import hmac
@@ -18,7 +18,7 @@ app.config.update(
     JSON_SORT_KEYS=False,
 )
 
-cors_origins = [origin.strip() for origin in os.getenv("CORS_ORIGINS", "https://ecom-app-integratee.vercel.app/").split(",") if origin.strip()]
+cors_origins = [origin.strip() for origin in os.getenv("CORS_ORIGINS", "https://ecom-app-hbmb.vercel.app").split(",") if origin.strip()]
 CORS(app, resources={r"/api/*": {"origins": cors_origins}})
 
 razorpay_key_id = os.getenv("RAZORPAY_TEST_KEY_ID")
@@ -65,80 +65,77 @@ def require_admin_token():
 
 with app.app_context():
     db.create_all()
+    if not Product.query.first():
+        db.session.add_all([
+            Product(
+                sku="BREW-DRIP-01",
+                name="Ceramic Pour-Over Dripper",
+                category="dripper",
+                price=1499,
+                description="A ribbed ceramic dripper for a steady, controlled pour.",
+                specs={"Material": "Glazed ceramic", "Brewer": "1-2 cups"},
+            ),
+            Product(
+                sku="BREW-GRIND-02",
+                name="Precision Hand Grinder",
+                category="grinder",
+                price=8499,
+                description="A compact hand grinder with consistent, adjustable burrs.",
+                specs={"Burrs": "Stainless steel", "Adjustment": "40 settings"},
+            ),
+            Product(
+                sku="BREW-KETTLE-03",
+                name="Gooseneck Pouring Kettle",
+                category="kettle",
+                price=6999,
+                description="A balanced gooseneck kettle for precise pour control.",
+                specs={"Capacity": "900 ml", "Material": "Stainless steel"},
+            ),
+            Product(
+                sku="BREW-SCALE-04",
+                name="Digital Brew Scale",
+                category="scale",
+                price=3299,
+                description="A responsive scale for repeatable coffee-to-water ratios.",
+                specs={"Accuracy": "0.1 g", "Timer": "Built in"},
+            ),
+            Product(
+                sku="BREW-CARAFE-05",
+                name="Glass Server Carafe",
+                category="carafe",
+                price=1899,
+                description="A heat-resistant glass server sized for a shared brew.",
+                specs={"Capacity": "600 ml", "Material": "Borosilicate glass"},
+            ),
+            Product(
+                sku="BREW-FILTER-06",
+                name="Paper Filter Set",
+                category="filters",
+                price=499,
+                description="Unbleached cone filters designed for a clean cup.",
+                specs={"Count": "100 filters", "Size": "02 cone"},
+            ),
+        ])
+        db.session.commit()
 
-# ---------------------------------------------------------------------------
-# Data — the catalog is static for this demo; cart and orders are persisted.
-# ---------------------------------------------------------------------------
-PRODUCTS = [
-    {
-        "id": 1,
-        "img" : "https://unsplash.com/photos/tree-before-building-with-dark-louvers-5dJgpTBw--w",
-        "sku": "KG-DR01",
-        "name": "Kalita Wave Dripper",
-        "category": "dripper",
-        "price": 2499,
-        "description": "Flat-bottom pour-over dripper for even, repeatable extraction.",
-        "specs": {"Material": "Ceramic", "Origin": "Japan", "Weight": "320 g"},
-    },
-    {
-        "id": 2,
-        "img" : "https://unsplash.com/photos/tree-before-building-with-dark-louvers-5dJgpTBw--w",
-        "sku": "KG-GR02",
-        "name": "Comandante C40 Grinder",
-        "category": "grinder",
-        "price": 10999,
-        "description": "Hand grinder with hardened-steel conical burrs.",
-        "specs": {"Material": "Stainless steel", "Origin": "Germany", "Weight": "460 g"},
-    },
-    {
-        "id": 3,
-        "img" : "https://unsplash.com/photos/tree-before-building-with-dark-louvers-5dJgpTBw--w",
-        "sku": "KG-KT03",
-        "name": "Fellow Stagg EKG Kettle",
-        "category": "kettle",
-        "price": 8999,
-        "description": "Variable-temperature gooseneck kettle with LCD display.",
-        "specs": {"Material": "Stainless steel", "Origin": "USA", "Weight": "1.1 kg"},
-    },
-    {
-        "id": 4,
-        "img" : "https://www.nintendo.com/au/news-and-articles/get-to-know-link-and-his-many-adventures/?srsltid=AfmBOori9ske8vaFf8J09xFJ9aYDs8M4-6gOgRKZCxiBVJzUSuL1wkly",
-        "sku": "KG-SC04",
-        "name": "Acaia Pearl Scale",
-        "category": "scale",
-        "price": 12499,
-        "description": "0.1 g precision scale with a built-in brew timer.",
-        "specs": {"Material": "Aluminium", "Origin": "Taiwan", "Weight": "370 g"},
-    },
-    {
-        "id": 5,
-        "img" : "https://www.nintendo.com/au/news-and-articles/get-to-know-link-and-his-many-adventures/?srsltid=AfmBOori9ske8vaFf8J09xFJ9aYDs8M4-6gOgRKZCxiBVJzUSuL1wkly",
-        "sku": "KG-CF05",
-        "name": "Chemex Six-Cup Carafe",
-        "category": "carafe",
-        "price": 4299,
-        "description": "Iconic hourglass carafe for a clean, bright cup.",
-        "specs": {"Material": "Borosilicate glass", "Origin": "USA", "Weight": "482 g"},
-    },
-    {
-        "id": 6,
-        "img" : "https://www.nintendo.com/au/news-and-articles/get-to-know-link-and-his-many-adventures/?srsltid=AfmBOori9ske8vaFf8J09xFJ9aYDs8M4-6gOgRKZCxiBVJzUSuL1wkly",
-        "sku": "KG-FL06",
-        "name": "Hario V60 Filters (100 ct)",
-        "category": "filters",
-        "price": 449,
-        "description": "Tabbed paper filters sized for the V60-02 dripper.",
-        "specs": {"Material": "Paper", "Origin": "Japan", "Weight": "180 g"},
-    },
-]
 
-PRODUCTS_BY_ID = {p["id"]: p for p in PRODUCTS}
+def serialize_product(product):
+    return {
+        "id": product.id,
+        "sku": product.sku,
+        "name": product.name,
+        "category": product.category,
+        "price": product.price,
+        "description": product.description,
+        "specs": product.specs or {},
+    }
+
 
 def get_product_or_404(product_id):
-    product = PRODUCTS_BY_ID.get(product_id)
+    product = db.session.query(Product).filter_by(id=product_id).first()
     if product is None:
         return None
-    return product
+    return serialize_product(product)
 
 
 def serialize_cart():
@@ -148,13 +145,12 @@ def serialize_cart():
     for cart_item in CartItem.query.order_by(CartItem.product_id).all():
         product_id = cart_item.product_id
         quantity = cart_item.quantity
-        product = PRODUCTS_BY_ID.get(product_id)
+        product = get_product_or_404(product_id)
         if not product or quantity <= 0:
             continue
         subtotal = product["price"] * quantity
         total += subtotal
         items.append({
-            "img":product["img"],
             "product_id": product["id"],
             "sku": product["sku"],
             "name": product["name"],
@@ -214,9 +210,9 @@ def index():
     return ({"message": "Welcome to the E-Commerce API"})
 
 @app.get("/api/products")
-
 def list_products():
-    return jsonify(PRODUCTS)
+    products = Product.query.all()
+    return jsonify([serialize_product(product) for product in products])
 
 
 @app.get("/api/products/<int:product_id>")
